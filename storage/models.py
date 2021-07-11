@@ -120,6 +120,19 @@ def _search_in_application_list(name: str, applications: List[Applicant], text: 
             return ApplicantResult(text=text, position=applicant_i + 1 + scope, quota=quota)
 
 
+class Option(BaseModel):
+    data: str
+    type: str
+    next: list = Field(default_factory=list)
+
+    def parse_next(self, recursive=False):
+        for i in range(len(self.next)):
+            self.next[i]: Option = Option.parse_obj(self.next[i])
+
+            if recursive:
+                self.next[i].parse_next(True)
+
+
 if __name__ == '__main__':
     with open("../response.json", "r", encoding="utf-8") as inp:
         j = loads(inp.read().replace('"-"', "0").replace('"+"', "1"))

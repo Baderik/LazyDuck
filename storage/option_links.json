@@ -1,0 +1,8 @@
+﻿{
+  "admissionCampaignType": "https://www.dvfu.ru/bitrix/services/main/ajax.php?mode=class&c=dvfu:admission.spd&action=getAdmissionCampaignTypeList",
+  "financingSource": "https://www.dvfu.ru/bitrix/services/main/ajax.php?mode=class&c=dvfu:admission.spd&action=getFinancingSourceList",
+  "studyForm": "https://www.dvfu.ru/bitrix/services/main/ajax.php?mode=class&c=dvfu:admission.spd&action=getStudyFormList",
+  "implementationPlace": "https://www.dvfu.ru/bitrix/services/main/ajax.php?mode=class&c=dvfu:admission.spd&action=getImplementationPlaceList",
+  "trainingDirection": "https://www.dvfu.ru/bitrix/services/main/ajax.php?mode=class&c=dvfu:admission.spd&action=getTrainingDirectionList",
+  "order": ["admissionCampaignType", "financingSource", "studyForm", "implementationPlace", "trainingDirection"]
+}
