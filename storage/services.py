@@ -1,22 +1,26 @@
 from requests import get, post
+from typing import List
 from json import load
 from json.decoder import JSONDecodeError
+from pydantic.error_wrappers import ValidationError
 
 from sys import path
 
 path.append("../")
 
 from storage.settings import OPTION_PATH, OPTION_LINKS_PATH, APPLICANT_URL, BASE_HEADERS, STORAGE_PATH
-from storage.models import Option, ApplicantStorage
+from storage.models import Option, ApplicantStorage, BaseApplicant
 
 
-def init_option_storage() -> None:
+def init_option_storage() -> Option:
     data = Option(type="Storage", data=APPLICANT_URL)
 
     with open(OPTION_LINKS_PATH, "r", encoding="utf-8-sig") as inp:
         option_links = load(inp)
 
-    def _parse_option(order_i: int, option: Option, form: dict = {}):
+    def _parse_option(order_i: int, option: Option, form=None):
+        if form is None:
+            form = {}
         if len(option_links["order"]) <= order_i:
             return
 
@@ -37,6 +41,17 @@ def init_option_storage() -> None:
 
     with open(OPTION_PATH, "w", encoding="utf-8") as out:
         print(data.json(indent=4, ensure_ascii=False), file=out)
+
+    return data
+
+
+def open_option_storage() -> Option:
+    if OPTION_PATH.is_file():
+        o_storage = Option.parse_file(OPTION_PATH)
+        o_storage.parse_next(True)
+        return o_storage
+
+    return init_option_storage()
 
 
 def request_get_options(type_r: str, url: str, *args, **kwargs) -> list:
@@ -68,6 +83,76 @@ def request_get_options(type_r: str, url: str, *args, **kwargs) -> list:
     return result["data"]
 
 
+def open_applicant_storage() -> ApplicantStorage:
+    if STORAGE_PATH.is_file():
+        return ApplicantStorage.parse_file(STORAGE_PATH)
+    return ApplicantStorage()
+
+
+def request_get_table(url: str, *args, **kwargs) -> list:
+    print("post", url)
+    response = post(url, headers=BASE_HEADERS, *args, **kwargs)
+
+    if response.status_code != 200:
+        print("ERROR", response.status_code)
+        print(response.text)
+        return []
+
+    try:
+        result: dict = response.json()
+
+    except JSONDecodeError as e:
+        print("ERROR", e)
+        return []
+
+    if result["status"] != "success":
+        print("ERROR", result)
+        return []
+    print("200")
+    return result["data"]
+
+
+def update_storage():
+    a_storage: ApplicantStorage = open_applicant_storage()
+
+    def assembling_links(option: Option, data=None) -> None:
+        if data is None:
+            data = {"consent": False}
+        data[option.type] = option.data
+        if option.type == "trainingDirection":
+            print(data)
+            result: list = request_get_table(data["Storage"], data=data)
+            if not result:
+                print("Error Empty table")
+                return
+
+            for el_i in range(len(result)):
+                try:
+                    result[el_i] = BaseApplicant.parse_obj(result[el_i])
+                except ValidationError as e:
+                    print(result[el_i])
+                    raise e
+
+            # result: List[BaseApplicant] = list(map(BaseApplicant.parse_obj, result))
+            td = result[0].trainingDirection.split()
+            td_code = td[0]
+            td_name = " ".join(td[1:])
+            education_direction = a_storage.get_education_direction(
+                admission_campaign_type=result[0].admissionCampaignType,
+                study_form=result[0].studyForm,
+                td_code=td_code, td_name=td_name)
+            education_direction.update(result)
+            education_direction.update_service_information(result[0])
+        else:
+            for child in option.next:
+                assembling_links(child, data)
+
+    o_storage = open_option_storage()
+    assembling_links(o_storage)
+
+    with open(STORAGE_PATH, "w", encoding="utf-8") as out:
+        print(a_storage.json(indent=4, ensure_ascii=False), file=out)
+
+
 if __name__ == '__main__':
-    init_option_storage()
-    # get_options("https://www.dvfu.ru/bitrix/services/main/ajax.php?mode=class&c=dvfu:admission.spd&action=getAdmissionCampaignTypeList")
+    update_storage()

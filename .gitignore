@@ -142,3 +142,4 @@ cython_debug/
 
 # Storage
 storage/option.json
+storage/storage.json
