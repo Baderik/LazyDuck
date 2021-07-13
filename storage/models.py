@@ -1,6 +1,5 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, validator
-from json import loads
 from typing import List, Set
 
 
@@ -9,10 +8,26 @@ class ApplicantResult(BaseModel):
     position: int
     quota: int
 
+    def __str__(self) -> str:
+        if self.text == "Полное возмещение затрат":
+            self.text += " (Платка)"
+        else:
+            self.text += " (Бюджет)"
+        return f"{self.text}\nВаше место **{self.position}** из **{self.quota}** {'🌈' if self.position < self.quota else '🔥'}\n—————————————————————————"
+
 
 class IntermediateResult(BaseModel):
     text: str
     next: list = Field(default_factory=list)
+    stage: str
+
+    def __str__(self) -> str:
+        if self.stage == "trainingDirection":
+            now = f"\n• **{self.text}**\n—————————————————————————"
+        else:
+            now = self.text
+
+        return now + "\n" + "\n".join([str(child) for child in self.next])
 
 
 class Applicant(BaseModel):
@@ -118,7 +133,7 @@ class EducationDirection(BaseModel):
     student_names: Set[str] = Field(default_factory=set)
 
     def find_applicant(self, name: str) -> IntermediateResult:
-        result: IntermediateResult = IntermediateResult(text=self.name)
+        result: IntermediateResult = IntermediateResult(text=f"{self.code} {self.name}", stage="trainingDirection")
 
         args = ((self.budget_list, "На общих основаниях", self.budget_quota),
                 (self.company_list, "Целевой приём", self.company_quota),
@@ -206,7 +221,7 @@ class Intermediate(BaseModel):
                 self.next[i] = EducationDirection.parse_obj(self.next[i])
 
     def find_applicant(self, name: str) -> IntermediateResult:
-        result: IntermediateResult = IntermediateResult(text=self.name)
+        result: IntermediateResult = IntermediateResult(text=self.name, stage=self.stage)
         for child in self.next:
             if name in child.student_names:
                 result.next.append(child.find_applicant(name))
@@ -262,7 +277,7 @@ class ApplicantStorage(BaseModel):
         result: List[IntermediateResult] = []
         for intermediate in self.admissions:
             if name in intermediate.student_names:
-                result += intermediate.find_applicant(name)
+                result.append(intermediate.find_applicant(name))
 
         return result
 
