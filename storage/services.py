@@ -6,12 +6,12 @@ from sys import path
 
 path.append("../")
 
-from storage.settings import OPTION_PATH, OPTION_LINKS_PATH, APPLICATION_URL, BASE_HEADERS
+from storage.settings import OPTION_PATH, OPTION_LINKS_PATH, APPLICANT_URL, BASE_HEADERS, STORAGE_PATH
 from storage.models import Option, ApplicantStorage
 
 
 def init_option_storage() -> None:
-    data = Option(type="Storage", data=APPLICATION_URL)
+    data = Option(type="Storage", data=APPLICANT_URL)
 
     with open(OPTION_LINKS_PATH, "r", encoding="utf-8-sig") as inp:
         option_links = load(inp)

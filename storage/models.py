@@ -102,7 +102,7 @@ class EducationDirection(BaseModel):
                 (self.special_list, "Особая квота", self.special_quota),
                 (self.finance_list, "Полное возмещение затрат", self.finance_quota))
         for arg in args:
-            if res := _search_in_application_list(name, *arg):
+            if res := _search_in_applicant_list(name, *arg):
                 result.next.append(res)
 
         return result
@@ -249,7 +249,7 @@ class ApplicantStorage(BaseModel):
             admission.parse_next(recursive)
 
 
-def _search_in_application_list(name: str, applicants: List[Applicant], text: str, quota: int):
+def _search_in_applicant_list(name: str, applicants: List[Applicant], text: str, quota: int):
     for applicant_i in range(len(applicants)):
         if name == applicants[applicant_i].name:
             return ApplicantResult(text=text, position=applicant_i + 1, quota=quota)
@@ -273,7 +273,7 @@ if __name__ == '__main__':
         j = loads(inp.read().replace('"-"', "0").replace('"+"', "1"))
 
     #
-    # applications = []
+    # applicants = []
     # names = set()
     # for a in j["data"]:
         # b = BaseApplicant(**a)
@@ -281,15 +281,15 @@ if __name__ == '__main__':
         # c = b.compress()
         # print(c)
         # break
-        # applications.append(Applicant(**a))
-    #     names.add(applications[-1].name)
+        # applicants.append(Applicant(**a))
+    #     names.add(applicants[-1].name)
     #
-    # print(applications)
-    # applications.sort(reverse=True)
-    # print(applications)
+    # print(applicants)
+    # applicants.sort(reverse=True)
+    # print(applicants)
     #
     # pmi = EducationDirection(name="Прикладная математика и информатика", code="01.03.02", budget_quota=59, company_quota=8, special_quota=8, finance_quota=5,
-    #                          datetime_update="2021-07-09 09:05:20", base_budget_list=applications, student_names=names)
+    #                          datetime_update="2021-07-09 09:05:20", base_budget_list=applicants, student_names=names)
     # vl = Intermediate(name="Владивосток", stage="implementationPlace", next=[pmi], student_names=names) # -
     # f_ed = Intermediate(name="Очная", stage="studyForm", next=[vl], student_names=names)
     # finance = Intermediate(name="Бюджетная основа", stage="financingSource", next=[f_ed], student_names=names) # -

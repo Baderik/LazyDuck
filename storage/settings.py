@@ -9,5 +9,5 @@ OPTION_PATH = str(BASE_DIR / "storage" / "option.json")
 # REQUESTS
 BASE_HEADERS = {"User-Agent": "PostmanRuntime/7.28.2"}
 # LINKS
-APPLICATION_URL = "https://www.dvfu.ru/bitrix/services/main/ajax.php?mode=class&c=dvfu:admission.spd&action=getStudents"
+APPLICANT_URL = "https://www.dvfu.ru/bitrix/services/main/ajax.php?mode=class&c=dvfu:admission.spd&action=getStudents"
 
