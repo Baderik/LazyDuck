@@ -88,7 +88,8 @@ class BaseApplicant(BaseModel):
                 return 0
         return value
 
-    @validator("enrolled", "test1score", "test2score", "test3score", "test4score", "personal", "scoreSum", "scoreAvg", pre=True)
+    @validator("enrolled", "test1score", "test2score", "test3score", "test4score", "personal", "scoreSum", "scoreAvg",
+               pre=True)
     def normalizing_int(cls, value):
         try:
             return int(value)
@@ -166,6 +167,12 @@ class EducationDirection(BaseModel):
         self.special_quota = b_applicant.oq
         self.company_quota = b_applicant.cq
 
+    def update_student_names(self):
+        self.student_names: set = set(map(lambda el: el.name, self.budget_list))
+        self.student_names |= set(map(lambda el: el.name, self.company_list))
+        self.student_names |= set(map(lambda el: el.name, self.special_list))
+        self.student_names |= set(map(lambda el: el.name, self.finance_list))
+
 
 class Intermediate(BaseModel):
     name: str
@@ -207,12 +214,14 @@ class Intermediate(BaseModel):
         return result
 
     def update_student_names(self, recursive: bool = False):
-        self.student_name: set = set()
+        self.student_names: set = set()
 
         for child in self.next:
             if recursive:
                 if type(child) is Intermediate:
                     child.update_student_names(recursive)
+                else:
+                    child.update_student_names()
             self.student_names |= child.student_names
 
 
@@ -266,6 +275,10 @@ class ApplicantStorage(BaseModel):
     def parse_next(self, recursive=False):
         for admission in self.admissions:
             admission.parse_next(recursive)
+
+    def update_student_names(self, recursive: bool = False):
+        for child in self.admissions:
+            child.update_student_names(recursive)
 
 
 def _search_in_applicant_list(name: str, applicants: List[Applicant], text: str, quota: int):

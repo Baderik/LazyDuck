@@ -8,7 +8,7 @@ from sys import path
 
 path.append("../")
 
-from storage.settings import OPTION_PATH, OPTION_LINKS_PATH, APPLICANT_URL, BASE_HEADERS, STORAGE_PATH
+from storage.settings import OPTION_PATH, OPTION_LINKS_PATH, APPLICANT_URL, BASE_HEADERS, STORAGE_PATH, BEAUTIFUL_JSON
 from storage.models import Option, ApplicantStorage, BaseApplicant
 
 
@@ -40,7 +40,10 @@ def init_option_storage() -> Option:
     _parse_option(0, data)
 
     with open(OPTION_PATH, "w", encoding="utf-8") as out:
-        print(data.json(indent=4, ensure_ascii=False), file=out)
+        if BEAUTIFUL_JSON:
+            print(data.json(indent=4, ensure_ascii=False), file=out)
+        else:
+            print(data.json(), file=out)
 
     return data
 
@@ -85,7 +88,9 @@ def request_get_options(type_r: str, url: str, *args, **kwargs) -> list:
 
 def open_applicant_storage() -> ApplicantStorage:
     if STORAGE_PATH.is_file():
-        return ApplicantStorage.parse_file(STORAGE_PATH)
+        a_storage = ApplicantStorage.parse_file(STORAGE_PATH)
+        a_storage.parse_next(True)
+        return a_storage
     return ApplicantStorage()
 
 
@@ -149,10 +154,23 @@ def update_storage():
 
     o_storage = open_option_storage()
     assembling_links(o_storage)
+    print("update start")
+    a_storage.update_student_names(True)
+    print("update end")
 
     with open(STORAGE_PATH, "w", encoding="utf-8") as out:
-        print(a_storage.json(indent=4, ensure_ascii=False), file=out)
+        if BEAUTIFUL_JSON:
+            print(a_storage.json(indent=4, ensure_ascii=False), file=out)
+        else:
+            print(a_storage.json(), file=out)
 
 
 if __name__ == '__main__':
     update_storage()
+    # with open(STORAGE_PATH, "r", encoding="utf-8") as inp:
+    #     data = inp.read()
+    #     print(data)
+    #     print(ApplicantStorage.parse_raw(data))
+    # a_st = ApplicantStorage.parse_file(STORAGE_PATH, encoding="utf-8-sig")
+    # a_st.parse_next(True)
+    # print("success")
