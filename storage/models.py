@@ -83,7 +83,7 @@ class BaseApplicant(BaseModel):
 class EducationDirection(BaseModel):
     code: str
     name: str
-    datetime_update: datetime = Field(default_factory=datetime.now)
+    datetime_update: datetime = Field(default_factory=lambda: datetime(1, 1, 1))
     budget_quota: int = Field(0, ge=0)
     company_quota: int = Field(0, ge=0)
     special_quota: int = Field(0, ge=0)
@@ -131,6 +131,21 @@ class EducationDirection(BaseModel):
                 is_updated[type_applicant] = True
 
             list_updated[type_applicant].append(applicant.compress())
+
+        for key, value in is_updated.items():
+            if value:
+                list_updated[key].sort(reverse=True)
+
+    def update_service_information(self, b_applicant: BaseApplicant) -> None:
+        if self.datetime_update > b_applicant.date:
+            print("LOG td did not update")
+            return
+
+        self.datetime_update = b_applicant.date
+        self.budget_quota = b_applicant.bm
+        self.finance_quota = b_applicant.dm
+        self.special_quota = b_applicant.oq
+        self.company_quota = b_applicant.cq
 
 
 class Intermediate(BaseModel):
@@ -228,6 +243,10 @@ class ApplicantStorage(BaseModel):
         if key is None:
             return
         return self.admissions[key]
+
+    def parse_next(self, recursive=False):
+        for admission in self.admissions:
+            admission.parse_next(recursive)
 
 
 def _search_in_application_list(name: str, applicants: List[Applicant], text: str, quota: int):
