@@ -48,7 +48,7 @@ data: [
     category	"На общих основаниях",
     examinationsless	false, - БВИ
     preemptiveRight	"-", - Особая квота
-    consent	"-",
+    consent	"-", - Согласие
     base	"Бюджетная основа",
     enrolled	"0", - Зачислен, если > 0
     test1	"Вступительное испытание 1",

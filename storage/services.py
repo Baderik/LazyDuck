@@ -7,25 +7,25 @@ from sys import path
 path.append("../")
 
 from storage.settings import OPTION_PATH, OPTION_LINKS_PATH, APPLICATION_URL, BASE_HEADERS
-from storage.models import Option
+from storage.models import Option, ApplicantStorage
 
 
-def init_option_storage():
+def init_option_storage() -> None:
     data = Option(type="Storage", data=APPLICATION_URL)
 
     with open(OPTION_LINKS_PATH, "r", encoding="utf-8-sig") as inp:
         option_links = load(inp)
 
-    def _parse_option(order_i: int, option: Option, form={}):
+    def _parse_option(order_i: int, option: Option, form: dict = {}):
         if len(option_links["order"]) <= order_i:
             return
 
         link_key = option_links["order"][order_i]
         link = option_links[link_key]
         if order_i:
-            options = get_options("post", link, data=form)
+            options = request_get_options("post", link, data=form)
         else:
-            options = get_options("get", link)
+            options = request_get_options("get", link)
         for option_text in options:
             option.next.append(Option(type=link_key, data=option_text))
 
@@ -39,12 +39,15 @@ def init_option_storage():
         print(data.json(indent=4, ensure_ascii=False), file=out)
 
 
-def get_options(type_r: str, url: str, *args, **kwargs) -> list:
+def request_get_options(type_r: str, url: str, *args, **kwargs) -> list:
     print(type_r, url)
     if type_r == "get":
         response = get(url, headers=BASE_HEADERS, *args, **kwargs)
     elif type_r == "post":
         response = post(url, headers=BASE_HEADERS, *args, **kwargs)
+    else:
+        print("ERROR wrong type of request")
+        return []
 
     if response.status_code != 200:
         print("ERROR", response.status_code)
