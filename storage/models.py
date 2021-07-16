@@ -151,18 +151,17 @@ class EducationDirection(BaseModel):
             return
 
         list_updated = {"На общих основаниях": self.budget_list,
-                        "Без вступительных испытаний": self.budget_list,
                         "Имеющие особое право": self.special_list,
                         "Целевой прием": self.company_list,
                         "Полное возмещение затрат": self.finance_list}
         is_updated = {"На общих основаниях": False,
-                      "Без вступительных испытаний": False,
                       "Имеющие особое право": False,
                       "Целевой прием": False,
                       "Полное возмещение затрат": False}
         for applicant in applicants:
             if applicant.financingSource == "Бюджетная основа":
-                type_applicant = applicant.category
+                type_applicant = applicant.category if applicant.category != "Без вступительных испытаний" else "На общих основаниях"
+
             else:
                 type_applicant = applicant.financingSource
 

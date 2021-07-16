@@ -167,14 +167,5 @@ def update_storage():
 if __name__ == '__main__':
     # update_storage()
     a_storage = open_applicant_storage()
-    res = a_storage.find_applicant("000144415")
-    print(res)
+    res = a_storage.find_applicant("186-116-775 89")
     print(str(res[0]))
-    print(type(res[0]))
-    # with open(STORAGE_PATH, "r", encoding="utf-8") as inp:
-    #     data = inp.read()
-    #     print(data)
-    #     print(ApplicantStorage.parse_raw(data))
-    # a_st = ApplicantStorage.parse_file(STORAGE_PATH, encoding="utf-8-sig")
-    # a_st.parse_next(True)
-    # print("success")
