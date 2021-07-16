@@ -7,13 +7,19 @@ class ApplicantResult(BaseModel):
     text: str
     position: int
     quota: int
+    position_with_consent: int
+    consent: bool
 
     def __str__(self) -> str:
         if self.text == "Полное возмещение затрат":
             self.text += " (Платка)"
         else:
             self.text += " (Бюджет)"
-        return f"{self.text}\nВаше место **{self.position}** из **{self.quota}** {'🌈' if self.position < self.quota else '🔥'}\n—————————————————————————"
+        return f"{self.text}\n" \
+               f"Ваше место **{self.position}** из **{self.quota}** {'🌈' if self.position < self.quota else '🔥'}\n" \
+               f"С согласием: **{self.position_with_consent}** из **{self.quota}** {'🌈' if self.position_with_consent < self.quota else '🔥'}\n" \
+               f"Согласие: {'✅' if self.consent else '❌'}\n" \
+               f"—————————————————————————"
 
 
 class IntermediateResult(BaseModel):
@@ -44,6 +50,7 @@ class Applicant(BaseModel):
     ordinaturePriority: float
     personal: int
     scoreSum: int
+    position_with_consent: int = Field(default=1)
 
     def __lt__(self, other) -> bool:
         if self.examinationsless:
@@ -160,7 +167,9 @@ class EducationDirection(BaseModel):
                       "Полное возмещение затрат": False}
         for applicant in applicants:
             if applicant.financingSource == "Бюджетная основа":
-                type_applicant = applicant.category if applicant.category != "Без вступительных испытаний" else "На общих основаниях"
+                type_applicant = applicant.category \
+                    if applicant.category != "Без вступительных испытаний" \
+                    else "На общих основаниях"
 
             else:
                 type_applicant = applicant.financingSource
@@ -173,6 +182,9 @@ class EducationDirection(BaseModel):
         for key, value in is_updated.items():
             if value:
                 list_updated[key].sort(reverse=True)
+                for i in range(1, len(list_updated[key])):
+                    list_updated[key][i].position_with_consent = list_updated[key][i-1].position_with_consent +\
+                                                                 (1 if list_updated[key][i-1].consent else 0)
 
     def update_service_information(self, b_applicant: BaseApplicant) -> None:
         self.datetime_update = b_applicant.date
@@ -298,7 +310,11 @@ class ApplicantStorage(BaseModel):
 def _search_in_applicant_list(name: str, applicants: List[Applicant], text: str, quota: int):
     for applicant_i in range(len(applicants)):
         if name == applicants[applicant_i].name:
-            return ApplicantResult(text=text, position=applicant_i + 1, quota=quota)
+            return ApplicantResult(text=text,
+                                   position=applicant_i + 1,
+                                   quota=quota,
+                                   position_with_consent=applicants[applicant_i].position_with_consent,
+                                   consent=applicants[applicant_i].consent)
 
 
 class Option(BaseModel):

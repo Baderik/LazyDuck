@@ -167,5 +167,5 @@ def update_storage():
 if __name__ == '__main__':
     # update_storage()
     a_storage = open_applicant_storage()
-    res = a_storage.find_applicant("186-116-775 89")
+    res = a_storage.find_applicant("171-066-736 58")
     print(str(res[0]))
