@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, validator
 from typing import List, Set
+import re
 
 
 class ApplicantResult(BaseModel):
@@ -99,7 +100,9 @@ class BaseApplicant(BaseModel):
     dm: int
 
     def compress(self) -> Applicant:
-        return Applicant.parse_obj(self)
+        new_a = Applicant.parse_obj(self)
+        new_a.name = re.sub("\D", "", new_a.name)
+        return new_a
 
     @validator("examinationsless", "preemptiveRight", "consent", pre=True)
     def normalizing_bool(cls, value):
