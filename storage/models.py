@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field, validator
 from typing import List, Set
 import re
+from loguru import logger
 
 
 class ApplicantResult(BaseModel):
@@ -159,7 +160,7 @@ class EducationDirection(BaseModel):
 
     def update(self, applicants: List[BaseApplicant]) -> None:
         if not applicants:
-            print("LOG ed did not update")
+            logger.debug(f"{EducationDirection} did not update")
             return
 
         list_updated = {"На общих основаниях": self.budget_list,
@@ -214,7 +215,7 @@ class Intermediate(BaseModel):
 
     def add(self, element) -> None:
         if element.name in self.next_keys:
-            print("Такой уже есть Inter", element.name)
+            logger.debug(f"Element: {element} is already in Intermediate: {self}")
             return
 
         self.next_keys[element.name] = len(self.next)
@@ -283,7 +284,7 @@ class ApplicantStorage(BaseModel):
 
     def add(self, element) -> None:
         if element.name in self.admission_keys:
-            print("Такой уже есть Storage")
+            logger.debug(f"Element: {element} is already in Storage: {self}")
             return
 
         self.admission_keys[element.name] = len(self.admissions)

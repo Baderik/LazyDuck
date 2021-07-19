@@ -2,6 +2,7 @@ from requests import get, post
 from json import load
 from json.decoder import JSONDecodeError
 from pydantic.error_wrappers import ValidationError
+from loguru import logger
 
 from sys import path
 
@@ -56,33 +57,37 @@ def open_option_storage() -> Option:
     return init_option_storage()
 
 
-def request_get_options(type_r: str, url: str, *args, **kwargs) -> list:
-    print(type_r, url)
-    if type_r == "get":
-        response = get(url, headers=BASE_HEADERS, *args, **kwargs)
-    elif type_r == "post":
-        response = post(url, headers=BASE_HEADERS, *args, **kwargs)
-    else:
-        print("ERROR wrong type of request")
-        return []
-
+def _processing_fefu_response(response):
+    logger.debug(f"Response status code: {response.status_code}")
     if response.status_code != 200:
-        print("ERROR", response.status_code)
-        print(response.text)
+        logger.error(response.text)
         return []
 
     try:
         result: dict = response.json()
 
-    except JSONDecodeError as e:
-        print("ERROR", e)
+    except JSONDecodeError:
+        logger.exception("Wrong json")
         return []
 
+    logger.debug(f"Response status: {result['status']}")
     if result["status"] != "success":
-        print("ERROR", result)
+        logger.error(result)
         return []
-    print("200")
     return result["data"]
+
+
+def request_get_options(type_r: str, url: str, *args, **kwargs) -> list:
+    logger.debug(f"{type_r} {url}")
+    if type_r == "get":
+        response = get(url, headers=BASE_HEADERS, *args, **kwargs)
+    elif type_r == "post":
+        response = post(url, headers=BASE_HEADERS, *args, **kwargs)
+    else:
+        logger.error("Wrong type of request")
+        return []
+
+    return _processing_fefu_response(response)
 
 
 def open_applicant_storage() -> ApplicantStorage:
@@ -94,30 +99,13 @@ def open_applicant_storage() -> ApplicantStorage:
 
 
 def request_get_table(url: str, *args, **kwargs) -> list:
-    print("post", url)
+    logger.debug(f"Send post request {url}")
     response = post(url, headers=BASE_HEADERS, *args, **kwargs)
-
-    if response.status_code != 200:
-        print("ERROR", response.status_code)
-        print(response.text)
-        return []
-
-    try:
-        result: dict = response.json()
-
-    except JSONDecodeError as e:
-        print("ERROR", e)
-        return []
-
-    if result["status"] != "success":
-        print("ERROR", result)
-        return []
-    print("200")
-    return result["data"]
+    return _processing_fefu_response(response)
 
 
 def update_storage():
-    print("Updating storage")
+    logger.info("Updating storage")
     a_storage: ApplicantStorage = open_applicant_storage()
 
     def assembling_links(option: Option, data=None) -> None:
@@ -125,18 +113,17 @@ def update_storage():
             data = {"consent": False}
         data[option.type] = option.data
         if option.type == "trainingDirection":
-            print(data)
+            logger.debug(data)
             result: list = request_get_table(data["Storage"], data=data)
             if not result:
-                print("Error Empty table")
+                logger.debug("Table is empty")
                 return
 
             for el_i in range(len(result)):
                 try:
                     result[el_i] = BaseApplicant.parse_obj(result[el_i])
-                except ValidationError as e:
-                    print(result[el_i])
-                    raise e
+                except ValidationError:
+                    logger.exception("Is not a BaseApplicant")
 
             # result: List[BaseApplicant] = list(map(BaseApplicant.parse_obj, result))
             td = result[0].trainingDirection.split()
@@ -154,9 +141,7 @@ def update_storage():
 
     o_storage = open_option_storage()
     assembling_links(o_storage)
-    print("update start")
     a_storage.update_student_names(True)
-    print("update end")
 
     with open(STORAGE_PATH, "w", encoding="utf-8") as out:
         if BEAUTIFUL_JSON:
@@ -170,7 +155,7 @@ def find_applicant(name: str, fast: bool = True) -> str:
         update_storage()
     a_storage = open_applicant_storage()
     if a_storage.is_empty():
-        print("Storage is empty")
+        logger.debug("Storage is empty")
         update_storage()
         a_storage = open_applicant_storage()
     res = a_storage.find_applicant(name)
