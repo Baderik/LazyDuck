@@ -10,6 +10,7 @@ class ApplicantResult(BaseModel):
     quota: int
     position_with_consent: int
     consent: bool
+    last_quota: int
 
     def __str__(self) -> str:
         if self.text == "Полное возмещение затрат":
@@ -19,6 +20,7 @@ class ApplicantResult(BaseModel):
         return f"{self.text}\n" \
                f"Ваше место **{self.position}** из **{self.quota}** {'🌈' if self.position < self.quota else '🔥'}\n" \
                f"С согласием: **{self.position_with_consent}** из **{self.quota}** {'🌈' if self.position_with_consent < self.quota else '🔥'}\n" \
+               f"Теоретический проходной балл: **{self.last_quota}**\n" \
                f"Согласие: {'✅' if self.consent else '❌'}\n" \
                f"—————————————————————————"
 
@@ -316,11 +318,16 @@ class ApplicantStorage(BaseModel):
 def _search_in_applicant_list(name: str, applicants: List[Applicant], text: str, quota: int):
     for applicant_i in range(len(applicants)):
         if name == applicants[applicant_i].name:
+            if quota < len(applicants):
+                last_quota = applicants[quota].scoreSum
+            else:
+                last_quota = applicants[-1].scoreSum
             return ApplicantResult(text=text,
                                    position=applicant_i + 1,
                                    quota=quota,
                                    position_with_consent=applicants[applicant_i].position_with_consent,
-                                   consent=applicants[applicant_i].consent)
+                                   consent=applicants[applicant_i].consent,
+                                   last_quota=last_quota)
 
 
 class Option(BaseModel):
