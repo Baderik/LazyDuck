@@ -309,6 +309,9 @@ class ApplicantStorage(BaseModel):
         for child in self.admissions:
             child.update_student_names(recursive)
 
+    def is_empty(self) -> bool:
+        return len(self.admissions) == 0
+
 
 def _search_in_applicant_list(name: str, applicants: List[Applicant], text: str, quota: int):
     for applicant_i in range(len(applicants)):

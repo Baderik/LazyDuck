@@ -117,6 +117,7 @@ def request_get_table(url: str, *args, **kwargs) -> list:
 
 
 def update_storage():
+    print("Updating storage")
     a_storage: ApplicantStorage = open_applicant_storage()
 
     def assembling_links(option: Option, data=None) -> None:
@@ -164,8 +165,14 @@ def update_storage():
             print(a_storage.json(), file=out)
 
 
-if __name__ == '__main__':
-    # update_storage()
+def find_applicant(name: str, fast: bool = True) -> str:
+    if not fast:
+        update_storage()
     a_storage = open_applicant_storage()
-    res = a_storage.find_applicant("171-066-736 58")
-    print(str(res[0]))
+    if a_storage.is_empty():
+        print("Storage is empty")
+        update_storage()
+        a_storage = open_applicant_storage()
+    res = a_storage.find_applicant(name)
+    return "\n".join(map(str, res))
+
