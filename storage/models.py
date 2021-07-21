@@ -1,8 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, validator
 from typing import List, Set
-import re
 from loguru import logger
+from re import sub
 
 
 class ApplicantResult(BaseModel):
@@ -104,7 +104,7 @@ class BaseApplicant(BaseModel):
 
     def compress(self) -> Applicant:
         new_a = Applicant.parse_obj(self)
-        new_a.name = re.sub("\D", "", new_a.name)
+        new_a.name = sub("\D", "", new_a.name)
         return new_a
 
     @validator("examinationsless", "preemptiveRight", "consent", pre=True)
