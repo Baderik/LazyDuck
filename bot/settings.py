@@ -1,7 +1,13 @@
-from os import getenv, path
-
-import loguru
+from os import getenv
 from loguru import logger
+from pathlib import Path
+
+# DIRS
+BASE_DIR = Path(__file__).resolve().parent.parent
+LOGURU_DIR = BASE_DIR / "bot" / "logs"
+LOGURU_PATH = LOGURU_DIR / "bot.log"
+
+logger.add(LOGURU_PATH, rotation="1 day", compression="zip")
 
 API_TOKEN = getenv('TG_BOT_TOKEN')
 if not API_TOKEN:
