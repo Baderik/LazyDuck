@@ -1,4 +1,6 @@
 from os import getenv, path
+
+import loguru
 from loguru import logger
 
 API_TOKEN = getenv('TG_BOT_TOKEN')
@@ -8,7 +10,9 @@ if not API_TOKEN:
 
 # webhook settings
 WEBHOOK_HOST = getenv("WEBHOOK_HOST")
+logger.info("WEBHOOK HOST variable: " + WEBHOOK_HOST)
 WEBHOOK_PATH = getenv("WEBHOOK_PATH")  # SECRET
+logger.info("WEBHOOK PATH variable: " + WEBHOOK_PATH)
 WEBHOOK_URL = path.join(WEBHOOK_HOST, WEBHOOK_PATH)
 
 # webserver settings
