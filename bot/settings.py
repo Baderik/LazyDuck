@@ -16,7 +16,8 @@ logger.info("WEBHOOK PATH variable: " + WEBHOOK_PATH)
 WEBHOOK_URL = path.join(WEBHOOK_HOST, WEBHOOK_PATH)
 
 # webserver settings
-WEBAPP_PORT = getenv("PORT")
+WEBAPP_HOST = getenv("WEBAPP_HOST")
+WEBAPP_PORT = int(getenv("PORT"))
 
 # handlers settings
 ANSWERS = {
