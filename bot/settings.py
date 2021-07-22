@@ -1,19 +1,20 @@
 from os import getenv
 from os.path import join
+from loguru import logger
 
 API_TOKEN = getenv('TG_BOT_TOKEN')
 if not API_TOKEN:
-    # API_TOKEN = "1919016140:AAGXpdfQg_DIeIhLlwAk8qFX38Oe7ZAwHFA"
+    logger.exception("TG_BO_TOKEN did not find")
     exit(1)
 
 # webhook settings
-WEBHOOK_HOST = '7339436c0580.ngrok.io'
-WEBHOOK_PATH = ''  # SECRET
+WEBHOOK_HOST = getenv("WEBHOOK_HOST")
+WEBHOOK_PATH = getenv("WEBHOOK_PATH")  # SECRET
 WEBHOOK_URL = join(WEBHOOK_HOST, WEBHOOK_PATH)
 
 # webserver settings
-WEBAPP_HOST = 'localhost'  # or ip
-WEBAPP_PORT = 5000
+WEBAPP_HOST = getenv("WEBAPP_HOST")  # or ip
+WEBAPP_PORT = getenv("WEBAPP_PORT")
 
 # handlers settings
 ANSWERS = {
