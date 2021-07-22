@@ -105,7 +105,7 @@ def request_get_table(url: str, *args, **kwargs) -> list:
 
 
 def update_storage():
-    logger.info("Updating storage")
+    logger.info("Update storage start")
     a_storage: ApplicantStorage = open_applicant_storage()
 
     def assembling_links(option: Option, data=None) -> None:
@@ -148,6 +148,8 @@ def update_storage():
             print(a_storage.json(indent=4, ensure_ascii=False), file=out)
         else:
             print(a_storage.json(), file=out)
+
+    logger.info("Update storage finish")
 
 
 def find_applicant(name: str, fast: bool = True) -> str:
