@@ -1,2 +1,2 @@
 web: python bot/main.py
-worker: python storage/updater.py
+clock: python storage/updater.py

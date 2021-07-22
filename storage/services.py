@@ -152,12 +152,14 @@ def update_storage():
     logger.info("Update storage finish")
 
 
-def find_applicant(name: str, fast: bool = True) -> str:
+def find_applicant(name: str, fast: bool = True, multi: bool = True) -> str:
     if not fast:
         update_storage()
     a_storage = open_applicant_storage()
     if a_storage.is_empty():
         logger.debug("Storage is empty")
+        if multi:
+            return "Хранилище обновляется, попробуйте позже"
         update_storage()
         a_storage = open_applicant_storage()
     res = a_storage.find_applicant(name)
