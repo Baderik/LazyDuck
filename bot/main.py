@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from bot.core import app, dispatcher, bot
-from bot.settings import WEBHOOK_HOST, WEBAPP_PORT, WEBHOOK_URL
+from bot.settings import WEBAPP_HOST, WEBAPP_PORT, WEBHOOK_URL
 from bot.handler import h_start, h_cancel, h_help, h_search, h_fsearch, searchState
 
 
