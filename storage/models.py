@@ -19,7 +19,7 @@ class ApplicantResult(BaseModel):
         else:
             self.text += " (Бюджет)"
         return f"{self.text}\n" \
-               f"Ваше место в общем списке: *{self.position}* из *{self.quota}* {'🌈' if self.position < self.quota else '🔥'}\n" \
+               f"В общем списке: *{self.position}* из *{self.quota}* {'🌈' if self.position < self.quota else '🔥'}\n" \
                f"С согласием: *{self.position_with_consent}* из *{self.quota}* {'🌈' if self.position_with_consent < self.quota else '🔥'}\n" \
                f"Теоретический проходной балл: *{self.last_quota}*\n" \
                f"Согласие: {'✅' if self.consent else '❌'}\n" \

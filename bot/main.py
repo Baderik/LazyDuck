@@ -1,6 +1,6 @@
 from bot.core import dispatcher, bot
 from bot.settings import WEBAPP_HOST, WEBAPP_PORT, WEBHOOK_URL, WEBHOOK_PATH
-from bot.handler import h_start, h_cancel, h_help, h_search, h_fsearch, searchState
+from bot.handler import *
 from aiogram.utils.executor import start_webhook
 import logging
 
@@ -10,6 +10,7 @@ async def born(dp):
     dp.register_message_handler(h_help, state="*", commands=["help"])
     dp.register_message_handler(h_cancel, state="*", commands=["cancel"])
     dp.register_message_handler(h_search, state="*", commands=["search"])
+    dp.register_message_handler(h_info, state="*", commands=["info"])
     dp.register_message_handler(h_fsearch, state=searchState)
 
     # Setting webhook

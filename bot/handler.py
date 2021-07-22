@@ -6,6 +6,10 @@ from bot.settings import ANSWERS
 from bot.services import find_snils
 from storage.services import find_applicant
 
+__all__ = ["searchState",
+           "h_start", "h_info", "h_help",
+           "h_cancel", "h_search", "h_fsearch"]
+
 searchState = State()
 
 
@@ -45,3 +49,8 @@ async def h_fsearch(message: types.Message, state: FSMContext):
         answer = "Вас нет в списках ДВФУ"
     return await message.reply(text=answer, reply=not message.chat.type == "private",
                                parse_mode='Markdown')
+
+
+async def h_info(message: types.Message, state: FSMContext):
+    await state.reset_state()
+    return await message.reply(text=ANSWERS["INFO"], reply=not message.chat.type == "private")
