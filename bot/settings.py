@@ -13,16 +13,19 @@ WEBHOOK_HOST = getenv("WEBHOOK_HOST")
 logger.info("WEBHOOK HOST variable: " + WEBHOOK_HOST)
 WEBHOOK_PATH = getenv("WEBHOOK_PATH")  # SECRET
 logger.info("WEBHOOK PATH variable: " + WEBHOOK_PATH)
-WEBHOOK_URL = path.join(WEBHOOK_HOST, WEBHOOK_PATH)
+WEBHOOK_URL = WEBHOOK_HOST + WEBHOOK_PATH
+logger.info("WEBHOOK URL variable: " + WEBHOOK_URL)
+
 
 # webserver settings
 WEBAPP_HOST = getenv("WEBAPP_HOST")
 WEBAPP_PORT = int(getenv("PORT"))
-
+logger.info("WEBAPP HOST variable: " + WEBAPP_HOST)
+logger.info(f"WEBAPP PORT variable: {WEBAPP_PORT}")
 # handlers settings
 ANSWERS = {
-    "HELLO": "Привет я бот для отслеживания себя в списке ДВФУ",
-    "INVALID_SNILS": "Снилс должен быть такого формата: 111-222-333 44",
+    "HELLO": "Привет, я бот для отслеживания абитуриентов в списках ДВФУ.\nВведи /help, чтобы узнать больше.",
+    "INVALID_SNILS": "Введите СНИЛС абитуриента",
     "RESET_STATE": "Мы вернулись в начало",
-    "HELP": "Тут должно быть сообщение с помощью, но вы взрослый и справитесь сами\tУдачи)"
+    "HELP": "Вы достаточно взрослый, чтобы справляться самостоятельно..."
 }

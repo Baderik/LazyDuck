@@ -1,16 +1,16 @@
-from aiohttp import web
-
-from bot.core import app, dispatcher, bot
-from bot.settings import WEBAPP_HOST, WEBAPP_PORT, WEBHOOK_URL
+from bot.core import dispatcher, bot
+from bot.settings import WEBAPP_HOST, WEBAPP_PORT, WEBHOOK_URL, WEBHOOK_PATH
 from bot.handler import h_start, h_cancel, h_help, h_search, h_fsearch, searchState
+from aiogram.utils.executor import start_webhook
+import logging
 
 
-async def born(app):
-    dispatcher.register_message_handler(h_start, commands=["start"])
-    dispatcher.register_message_handler(h_help, state="*", commands=["help"])
-    dispatcher.register_message_handler(h_cancel, state="*", commands=["cancel"])
-    dispatcher.register_message_handler(h_search, state="*", commands=["search"])
-    dispatcher.register_message_handler(h_fsearch, state=searchState)
+async def born(dp):
+    dp.register_message_handler(h_start, commands=["start"])
+    dp.register_message_handler(h_help, state="*", commands=["help"])
+    dp.register_message_handler(h_cancel, state="*", commands=["cancel"])
+    dp.register_message_handler(h_search, state="*", commands=["search"])
+    dp.register_message_handler(h_fsearch, state=searchState)
 
     # Setting webhook
     webhook = await bot.get_webhook_info()
@@ -23,12 +23,20 @@ async def born(app):
         await bot.set_webhook(WEBHOOK_URL)
 
 
-async def die(app):
+async def die(dp):
     await bot.delete_webhook()
-    await dispatcher.storage.close()
-    await dispatcher.storage.wait_closed()
+    await dp.storage.close()
+    await dp.storage.wait_closed()
 
-app.on_startup.append(born)
-app.on_shutdown.append(die)
 
-web.run_app(app, host=WEBAPP_HOST, port=WEBAPP_PORT)
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    start_webhook(
+        dispatcher=dispatcher,
+        webhook_path=WEBHOOK_PATH,
+        on_startup=born,
+        on_shutdown=die,
+        skip_updates=True,
+        host=WEBAPP_HOST,
+        port=WEBAPP_PORT
+    )

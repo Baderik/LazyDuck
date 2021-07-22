@@ -19,9 +19,9 @@ class ApplicantResult(BaseModel):
         else:
             self.text += " (Бюджет)"
         return f"{self.text}\n" \
-               f"Ваше место **{self.position}** из **{self.quota}** {'🌈' if self.position < self.quota else '🔥'}\n" \
-               f"С согласием: **{self.position_with_consent}** из **{self.quota}** {'🌈' if self.position_with_consent < self.quota else '🔥'}\n" \
-               f"Теоретический проходной балл: **{self.last_quota}**\n" \
+               f"Ваше место в общем списке: *{self.position}* из *{self.quota}* {'🌈' if self.position < self.quota else '🔥'}\n" \
+               f"С согласием: *{self.position_with_consent}* из *{self.quota}* {'🌈' if self.position_with_consent < self.quota else '🔥'}\n" \
+               f"Теоретический проходной балл: *{self.last_quota}*\n" \
                f"Согласие: {'✅' if self.consent else '❌'}\n" \
                f"—————————————————————————"
 
@@ -33,7 +33,7 @@ class IntermediateResult(BaseModel):
 
     def __str__(self) -> str:
         if self.stage == "trainingDirection":
-            now = f"\n• **{self.text}**\n—————————————————————————"
+            now = f"\n• *{self.text}*\n—————————————————————————"
         else:
             now = self.text
 

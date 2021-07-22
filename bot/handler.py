@@ -32,7 +32,7 @@ async def h_search(message: types.Message):
     if not (answer := find_applicant(snils)):
         answer = "Вас нет в списках ДВФУ"
 
-    return await message.reply(text=answer, reply=not message.chat.type == "private",
+    return await message.reply(text=f"СНИЛС: {snils}\n" + answer, reply=not message.chat.type == "private",
                                parse_mode='Markdown')
 
 
